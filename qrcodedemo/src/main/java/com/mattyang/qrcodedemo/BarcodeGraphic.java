@@ -1,5 +1,7 @@
 package com.mattyang.qrcodedemo;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -23,6 +25,7 @@ public class BarcodeGraphic extends GraphicOverlay.Graphic {
     private Paint mRectPaint;
     private Paint mTextPaint;
     private volatile Barcode mBarcode;
+    Bitmap bitmap;
 
     BarcodeGraphic(GraphicOverlay overlay){
         super(overlay);
@@ -37,6 +40,7 @@ public class BarcodeGraphic extends GraphicOverlay.Graphic {
         mTextPaint = new Paint();
         mTextPaint.setColor(selectedColor);
         mTextPaint.setTextSize(36.0f);
+        bitmap = BitmapFactory.decodeResource(MainActivity.mContext.getResources(),R.drawable.check_circle);
     }
 
     public int getId(){
@@ -69,6 +73,7 @@ public class BarcodeGraphic extends GraphicOverlay.Graphic {
         rect.right = translateX(rect.right);
         rect.bottom = translateY(rect.bottom);
         canvas.drawRect(rect,mRectPaint);
-        canvas.drawText(barcode.rawValue,rect.left,rect.bottom,mTextPaint);
+//        canvas.drawText(barcode.rawValue,rect.left,rect.bottom,mTextPaint);
+        canvas.drawBitmap(bitmap,barcode.getBoundingBox().centerX(),barcode.getBoundingBox().centerY(),mTextPaint);
     }
 }

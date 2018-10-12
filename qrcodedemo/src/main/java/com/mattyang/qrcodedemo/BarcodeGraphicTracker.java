@@ -42,7 +42,7 @@ public class BarcodeGraphicTracker extends Tracker<Barcode> {
 
     @Override
     public void onMissing(Detector.Detections<Barcode> detections) {
-        mOverlay.remove(mGraphic);
+//        mOverlay.remove(mGraphic);
     }
 
     @Override
