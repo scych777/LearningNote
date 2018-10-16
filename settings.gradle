@@ -1,1 +1,1 @@
-include ':app', ':mysocket', ':qrcodedemo'
+include ':app', ':mysocket', ':qrcodedemo', ':demos'

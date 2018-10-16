@@ -9,6 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/demos" />
             <option value="$PROJECT_DIR$/mysocket" />
             <option value="$PROJECT_DIR$/qrcodedemo" />
           </set>
