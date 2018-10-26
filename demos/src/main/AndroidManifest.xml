@@ -16,6 +16,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.mattyang.demos"
+            android:name=".ContentProvider.myContentProvider"/>
     </application>
 
     <uses-permission android:name="android.permission.BLUETOOTH" />

@@ -1,6 +1,9 @@
 package com.mattyang.demos.RxJava;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -15,6 +18,7 @@ public class RxjavaActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Uri uri = Uri.parse("content://con.mattyang.demos/title");
         Observer<String> observer = new Observer<String>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -36,7 +40,11 @@ public class RxjavaActivity extends Activity {
                 Log.d(TAG,"onComplete");
             }
         };
-
+        ContentValues values = new ContentValues();
+        values.put("id",3);
+        values.put("title","Iverson");
+        ContentResolver resolver = getContentResolver();
+        resolver.insert(uri,values);
         Observable.just("hello","world").subscribeOn(Schedulers.newThread()).subscribe(observer);
 
     }
