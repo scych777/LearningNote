@@ -20,6 +20,11 @@
         <provider
             android:authorities="com.mattyang.demos"
             android:name=".ContentProvider.myContentProvider"/>
+        <service android:name=".MediaPlaybackService">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
     </application>
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
