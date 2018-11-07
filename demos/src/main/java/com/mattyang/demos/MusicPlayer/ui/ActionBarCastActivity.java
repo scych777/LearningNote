@@ -53,7 +53,7 @@ public class ActionBarCastActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
+//        getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ActionBarCastActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
+//        getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
     }
 
     @Override
@@ -109,24 +109,24 @@ public class ActionBarCastActivity extends AppCompatActivity {
     }
 
     protected void initializeToolbar(){
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+//        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         if(mToolbar == null){
             throw new IllegalStateException("Layout is required to include a Toolbar with id "+
             "'toolbar'");
         }
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if(mDrawerLayout != null){
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            if(navigationView == null){
-                throw new IllegalStateException("Layout requires a NavigationView "+
-                "with id 'nav_view'");
-            }
-            mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,mToolbar,R.string.open_content_drawer,
-                    R.string.close_content_drawer);
-            mDrawerLayout.setDrawerListener(mDrawerListener);
-            populateDrawerItems(navigationView);
-            setSupportActionBar(mToolbar);
-            updateDrawerToggle();
+//            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+//            if(navigationView == null){
+//                throw new IllegalStateException("Layout requires a NavigationView "+
+//                "with id 'nav_view'");
+//            }
+//            mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,mToolbar,R.string.open_content_drawer,
+//                    R.string.close_content_drawer);
+//            mDrawerLayout.setDrawerListener(mDrawerListener);
+//            populateDrawerItems(navigationView);
+//            setSupportActionBar(mToolbar);
+//            updateDrawerToggle();
         }else{
             setSupportActionBar(mToolbar);
         }
@@ -143,11 +143,11 @@ public class ActionBarCastActivity extends AppCompatActivity {
                 return true;
             }
         });
-        if(MusicPlayerActivity.class.isAssignableFrom(getClass())){
-            navigationView.setCheckedItem(R.id.navigation_allmusic);
-        }else if(PlaceholerActivity.class.isAssignableFrom(getClass())){
-            navigationView.setCheckedItem(R.id.navigation_playlists);
-        }
+//        if(MusicPlayerActivity.class.isAssignableFrom(getClass())){
+//            navigationView.setCheckedItem(R.id.navigation_allmusic);
+//        }else if(PlaceholerActivity.class.isAssignableFrom(getClass())){
+//            navigationView.setCheckedItem(R.id.navigation_playlists);
+//        }
     }
 
     private void updateDrawerToggle(){
@@ -189,10 +189,10 @@ public class ActionBarCastActivity extends AppCompatActivity {
                         R.anim.fade_in,R.anim.fade_out).toBundle();
             Class activityClass = null;
             switch (mItemToOpenWhenDrawerCloses){
-                case R.id.navigation_allmusic:
-                    activityClass = MusicPlayerActivity.class;
-                case R.id.navigation_playlists:
-                    activityClass = PlaceholderActivity.class;
+//                case R.id.navigation_allmusic:
+//                    activityClass = MusicPlayerActivity.class;
+//                case R.id.navigation_playlists:
+//                    activityClass = PlaceholderActivity.class;
             }
             if(activityClass != null){
                 startActivity(new Intent(ActionBarCastActivity.this,activityClass),extras);
