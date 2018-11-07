@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mattyang.demos">
+    package="com.mattyang.demos"
+    >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-feature
-        android:name="android.software.leanback"
-        android:required="false"/>
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false"/>
@@ -19,16 +17,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MusicPlayer.ui.MusicPlayerActivity">
+        <activity android:name=".BlueTooth.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <provider
             android:authorities="com.mattyang.demos"
             android:name=".ContentProvider.myContentProvider"/>
+        <service android:name=".MusicPlayer.test.TestMediaPlayService">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
     </application>
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
