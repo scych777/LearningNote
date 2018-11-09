@@ -35,12 +35,25 @@ public class NetworkCircleMapView extends View {
     private int subSelectedItemTouchAreaY = 0;
     Context mContext;
     Bitmap bitmap;
+    Paint mainCirclePaint;
+    Paint mainItemPaint;
+    Paint mainItemSelectedPaint;
+    Paint mainItemTextPaint;
+    Paint mainItemSelectedTextPaint;
+    Paint subItemPaint;
+    Paint subItemTextPaint;
+    Paint subItemSelectedTextPaint;
+    Paint subItemSelectedCirclePaint;
+    Paint subCirclePaint;
+    Paint subCircleSubItemPaint;
+    Paint subCircleSubItemTextPaint;
 
 
     public NetworkCircleMapView(Context context) {
         super(context);
         this.mContext = context;
         initData();
+        initPaints();
     }
 
     public NetworkCircleMapView(Context context, @Nullable AttributeSet attrs) {
@@ -48,6 +61,7 @@ public class NetworkCircleMapView extends View {
         this.mContext = context;
          bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.router);
          initData();
+         initPaints();
     }
 
     @Override
@@ -76,57 +90,124 @@ public class NetworkCircleMapView extends View {
         subItemTouchArea = dp2px(22);
     }
 
+    private void initPaints(){
+        mainCirclePaint = new Paint();
+        mainCirclePaint.setColor(mContext.getResources().getColor(R.color.light_blue));
+        mainCirclePaint.setStrokeWidth(5);
+        mainCirclePaint.setStyle(Paint.Style.STROKE);
+        mainCirclePaint.setAntiAlias(true);
+
+        mainItemPaint = new Paint();
+        mainItemPaint.setColor(mContext.getResources().getColor(R.color.INPUT_COLOR));
+        mainItemPaint.setStyle(Paint.Style.FILL);
+        mainItemPaint.setStrokeWidth(5);
+        mainItemPaint.setAntiAlias(true);
+
+        mainItemSelectedPaint = new Paint();
+        mainItemSelectedPaint.setStyle(Paint.Style.STROKE);
+        mainItemSelectedPaint.setColor(mContext.getResources().getColor(R.color.light_blue));
+        mainItemSelectedPaint.setStrokeWidth(10);
+        mainItemSelectedPaint.setAntiAlias(true);
+
+        mainItemTextPaint = new Paint();
+        mainItemTextPaint.setColor(mContext.getResources().getColor(R.color.STATIC_COLOR));
+        mainItemTextPaint.setStrokeWidth(8);
+        mainItemTextPaint.setStyle(Paint.Style.FILL);
+        mainItemTextPaint.setTextSize(35);
+        mainItemTextPaint.setAntiAlias(true);
+
+        mainItemSelectedTextPaint = new Paint();
+        mainItemSelectedTextPaint.setColor(mContext.getResources().getColor(R.color.light_blue));
+        mainItemSelectedTextPaint.setStrokeWidth(8);
+        mainItemSelectedTextPaint.setStyle(Paint.Style.FILL);
+        mainItemSelectedTextPaint.setTextSize(35);
+        mainItemSelectedTextPaint.setAntiAlias(true);
+
+        subItemPaint = new Paint();
+        subItemPaint.setColor(mContext.getResources().getColor(R.color.INPUT_COLOR));
+        subItemPaint.setStrokeWidth(30);
+        subItemPaint.setStyle(Paint.Style.FILL);
+        subItemPaint.setAntiAlias(true);
+
+        subItemTextPaint = new Paint();
+        subItemTextPaint.setColor(mContext.getResources().getColor(R.color.STATIC_COLOR));
+        subItemTextPaint.setStrokeWidth(8);
+        subItemTextPaint.setStyle(Paint.Style.FILL);
+        subItemTextPaint.setTextSize(35);
+        subItemTextPaint.setAntiAlias(true);
+
+        subItemSelectedTextPaint = new Paint();
+        subItemSelectedTextPaint.setColor(mContext.getResources().getColor(R.color.light_blue));
+        subItemSelectedTextPaint.setStrokeWidth(8);
+        subItemSelectedTextPaint.setTextSize(35);
+        subItemSelectedTextPaint.setStyle(Paint.Style.FILL);
+        subItemSelectedTextPaint.setAntiAlias(true);
+
+        subItemSelectedCirclePaint = new Paint();
+        subItemSelectedCirclePaint.setColor(mContext.getResources().getColor(R.color.light_blue));
+        subItemSelectedCirclePaint.setStyle(Paint.Style.STROKE);
+        subItemSelectedCirclePaint.setStrokeWidth(10);
+        subItemSelectedCirclePaint.setAntiAlias(true);
+
+        subCirclePaint = new Paint();
+        subCirclePaint.setStyle(Paint.Style.STROKE);
+        subCirclePaint.setColor(mContext.getResources().getColor(R.color.light_blue));
+        subCirclePaint.setStrokeWidth(5);
+        subCirclePaint.setAntiAlias(true);
+
+        subCircleSubItemPaint = new Paint();
+        subCircleSubItemPaint.setColor(mContext.getResources().getColor(R.color.INPUT_COLOR));
+        subCircleSubItemPaint.setStyle(Paint.Style.FILL);
+        subCircleSubItemPaint.setStrokeWidth(5);
+        subCircleSubItemPaint.setAntiAlias(true);
+
+        subCircleSubItemTextPaint = new Paint();
+        subCircleSubItemTextPaint.setColor(mContext.getResources().getColor(R.color.STATIC_COLOR));
+        subCircleSubItemTextPaint.setStrokeWidth(8);
+        subCircleSubItemTextPaint.setStyle(Paint.Style.FILL);
+        subCircleSubItemTextPaint.setTextSize(35);
+        subCircleSubItemTextPaint.setAntiAlias(true);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Paint paint = new Paint();
-        paint.setColor(mContext.getResources().getColor(R.color.light_blue));
-        paint.setStrokeWidth(5);
-        paint.setStyle(Paint.Style.STROKE);
-        canvas.drawCircle(centerX,centerY,mainCircleRadius,paint);
-        paint.setColor(mContext.getResources().getColor(R.color.INPUT_COLOR));
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(centerX,centerY,mainItemRadius,paint);
+        //draw main circle
+        canvas.drawCircle(centerX,centerY,mainCircleRadius,mainCirclePaint);
+
+        //draw main item in the middle
+        canvas.drawCircle(centerX,centerY,mainItemRadius,mainItemPaint);
         canvas.drawBitmap(bitmap,new Rect(0,0,bitmap.getWidth(),bitmap.getHeight()),new Rect(centerX - bitmap.getWidth() /2,
-                                            centerY - bitmap.getHeight() /2,centerX + bitmap.getWidth() /2,centerY + bitmap.getHeight() /2),paint);
+                                            centerY - bitmap.getHeight() /2,centerX + bitmap.getWidth() /2,centerY + bitmap.getHeight() /2),mainItemPaint);
+        //draw
+        canvas.drawCircle(centerX,centerY,mainItemSelectedRadius,mainItemSelectedPaint);
 
-
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(mContext.getResources().getColor(R.color.light_blue));
-        paint.setStrokeWidth(10);
-        canvas.drawCircle(centerX,centerY,mainItemSelectedRadius,paint);
-
-
-        paint.setColor(mContext.getResources().getColor(R.color.STATIC_COLOR));
-        paint.setStrokeWidth(8);
-        paint.setStyle(Paint.Style.FILL);
+        //draw main item describe info line one
         Rect rect = new Rect();
         String firstValue = "2 Floor";
-        paint.setTextSize(35);
         if(firstValue != null && firstValue.length() > 0){
-            float textWidth = paint.measureText(firstValue);
+            float textWidth = mainItemTextPaint.measureText(firstValue);
             if(textWidth > mainItemTouchArea * 2){
-                int subIndex = paint.breakText(firstValue,0,firstValue.length(),true,mainItemTouchArea * 2,null);
+                int subIndex = mainItemTextPaint.breakText(firstValue,0,firstValue.length(),true,mainItemTouchArea * 2,null);
                 firstValue = firstValue.substring(0,subIndex - 3) + "...";
             }
         }
-        paint.getTextBounds(firstValue,0,firstValue.length(),rect);
-        canvas.drawText(firstValue,centerX - ((rect.right - rect.left)/2),centerY + mainItemSelectedRadius + (rect.bottom - rect.top) + 10,paint);
+        mainItemTextPaint.getTextBounds(firstValue,0,firstValue.length(),rect);
+        canvas.drawText(firstValue,centerX - ((rect.right - rect.left)/2),centerY + mainItemSelectedRadius + (rect.bottom - rect.top) + 10,mainItemTextPaint);
         int centerToFirstLine = centerY + mainItemSelectedRadius + (rect.bottom - rect.top) + 20;
 
-
-        paint.setColor(mContext.getResources().getColor(R.color.light_blue));
+        //draw main item describe info line two
         rect = new Rect();
         String secondValue = "Chelsea Iphone";
         if(secondValue != null && secondValue.length() > 0){
-            float width = paint.measureText(secondValue);
+            float width = mainItemSelectedTextPaint.measureText(secondValue);
             if(width > mainItemTouchArea * 2){
-                int subIndex = paint.breakText(secondValue,0,secondValue.length(),true,mainItemTouchArea * 2,null);
+                int subIndex = mainItemSelectedTextPaint.breakText(secondValue,0,secondValue.length(),true,mainItemTouchArea * 2,null);
                 secondValue = secondValue.substring(0,subIndex - 3) + "...";
             }
         }
-        paint.getTextBounds(secondValue,0,secondValue.length(),rect);
-        canvas.drawText(secondValue,centerX - ((rect.right - rect.left)/2),centerToFirstLine + (rect.bottom - rect.top)+5,paint);
+        mainItemSelectedTextPaint.getTextBounds(secondValue,0,secondValue.length(),rect);
+        canvas.drawText(secondValue,centerX - ((rect.right - rect.left)/2),centerToFirstLine + (rect.bottom - rect.top)+5,mainItemSelectedTextPaint);
         mainSelectedItemTouchAreaY = centerToFirstLine + (rect.bottom - rect.top)+5;
 
         Path path = new Path();
@@ -142,33 +223,22 @@ public class NetworkCircleMapView extends View {
         canvas.drawPath(path,pa3);
 
         float[] mainPoints = generatePoints(centerX,centerY,mainCircleRadius,mainCount);
-        Paint secondPaint = new Paint();
-        secondPaint.setColor(mContext.getResources().getColor(R.color.INPUT_COLOR));
-        secondPaint.setStrokeWidth(30);
-        secondPaint.setStyle(Paint.Style.FILL);
-        Paint thirdPaint = new Paint();
-        Paint fourthPaint = new Paint();
-        Paint fifthPaint = new Paint();
         for(int i = 0; i < mainCount;i++){
+            //draw subItem on main circle
+            canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemRadius,subItemPaint);
 
-            canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemRadius,secondPaint);
-
-
-            thirdPaint.setColor(mContext.getResources().getColor(R.color.STATIC_COLOR));
-            thirdPaint.setStrokeWidth(8);
-            thirdPaint.setStyle(Paint.Style.FILL);
+            //draw subItem describe info line one
             Rect subRect = new Rect();
             String subfirstValue = "Lobby";
-            thirdPaint.setTextSize(35);
             if(subfirstValue != null && subfirstValue.length() > 0){
-                float textWidth = thirdPaint.measureText(subfirstValue);
+                float textWidth = subItemTextPaint.measureText(subfirstValue);
                 if(textWidth > subItemTouchArea * 2){
-                    int subIndex = thirdPaint.breakText(subfirstValue,0,subfirstValue.length(),true,subItemTouchArea * 2,null);
+                    int subIndex = subItemTextPaint.breakText(subfirstValue,0,subfirstValue.length(),true,subItemTouchArea * 2,null);
                     subfirstValue = subfirstValue.substring(0,subIndex - 3) + "...";
                 }
             }
-            thirdPaint.getTextBounds(subfirstValue,0,subfirstValue.length(),subRect);
-            canvas.drawText(subfirstValue,mainPoints[i * 2] - ((subRect.right - subRect.left)/2),mainPoints[i * 2 + 1] + subItemSelectedRadius + (subRect.bottom - subRect.top) + 10,thirdPaint);
+            subItemTextPaint.getTextBounds(subfirstValue,0,subfirstValue.length(),subRect);
+            canvas.drawText(subfirstValue,mainPoints[i * 2] - ((subRect.right - subRect.left)/2),mainPoints[i * 2 + 1] + subItemSelectedRadius + (subRect.bottom - subRect.top) + 10,subItemTextPaint);
             int subCenterToFirstLine = (int)(mainPoints[i * 2 + 1] + subItemSelectedRadius + (subRect.bottom - subRect.top) + 10);
 
             if(i != 0) {
@@ -187,21 +257,18 @@ public class NetworkCircleMapView extends View {
 
 
             if(i == 0){
-                fourthPaint.setColor(mContext.getResources().getColor(R.color.light_blue));
-                fourthPaint.setStrokeWidth(8);
-                fourthPaint.setTextSize(35);
-                fourthPaint.setStyle(Paint.Style.FILL);
+                //draw subItem describe info line two
                 Rect secondRect = new Rect();
                 String subsecondValue = "Teri iPhone";
                 if(subsecondValue != null && subsecondValue.length() > 0){
-                    float width = fourthPaint.measureText(subsecondValue);
+                    float width = subItemSelectedTextPaint.measureText(subsecondValue);
                     if(width > subItemTouchArea * 2){
-                        int subIndex = fourthPaint.breakText(subsecondValue,0,subsecondValue.length(),true,subItemTouchArea * 2,null);
+                        int subIndex = subItemSelectedTextPaint.breakText(subsecondValue,0,subsecondValue.length(),true,subItemTouchArea * 2,null);
                         subsecondValue = subsecondValue.substring(0,subIndex - 3) + "...";
                     }
                 }
-                fourthPaint.getTextBounds(subsecondValue,0,subsecondValue.length(),secondRect);
-                canvas.drawText(subsecondValue,mainPoints[i * 2] - ((secondRect.right - secondRect.left)/2),subCenterToFirstLine + (secondRect.bottom - secondRect.top)+5,fourthPaint);
+                subItemSelectedTextPaint.getTextBounds(subsecondValue,0,subsecondValue.length(),secondRect);
+                canvas.drawText(subsecondValue,mainPoints[i * 2] - ((secondRect.right - secondRect.left)/2),subCenterToFirstLine + (secondRect.bottom - secondRect.top)+5,subItemSelectedTextPaint);
                 subSelectedItemTouchAreaY = subCenterToFirstLine + (secondRect.bottom - secondRect.top)+5;
 
                 Path path4 = new Path();
@@ -216,24 +283,16 @@ public class NetworkCircleMapView extends View {
                 pap.setStyle(Paint.Style.STROKE);
                 canvas.drawPath(path4,pap);
 
+                //draw subItem is selected circle
+                canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemSelectedRadius,subItemSelectedCirclePaint);
 
-                secondPaint.setColor(mContext.getResources().getColor(R.color.light_blue));
-                secondPaint.setStyle(Paint.Style.STROKE);
-                secondPaint.setStrokeWidth(10);
-                canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemSelectedRadius,secondPaint);
-                secondPaint.setColor(mContext.getResources().getColor(R.color.INPUT_COLOR));
-                secondPaint.setStrokeWidth(30);
-                secondPaint.setStyle(Paint.Style.FILL);
                 if(subCount != 0) {
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setColor(mContext.getResources().getColor(R.color.light_blue));
-                    paint.setStrokeWidth(5);
-                    canvas.drawCircle(mainPoints[i * 2], mainPoints[i * 2 + 1], subCircleRadius, paint);
+                    //draw subCircle
+                    canvas.drawCircle(mainPoints[i * 2], mainPoints[i * 2 + 1], subCircleRadius, subCirclePaint);
                     float[] subPoints = generatePoints((int) mainPoints[i * 2], (int) mainPoints[i * 2 + 1], subCircleRadius, subCount);
-                    paint.setColor(mContext.getResources().getColor(R.color.INPUT_COLOR));
-                    paint.setStyle(Paint.Style.FILL);
                     for(int j = 0; j < subCount; j++){
-                        canvas.drawCircle(subPoints[j * 2],subPoints[j * 2 + 1],subItemRadius,paint);
+                        //draw subItem on subCircle
+                        canvas.drawCircle(subPoints[j * 2],subPoints[j * 2 + 1],subItemRadius,subCircleSubItemPaint);
 
                         Path path2 = new Path();
                         path2.moveTo(subPoints[j * 2] - subItemTouchArea,subPoints[j * 2 + 1] - subItemTouchArea);
@@ -247,21 +306,18 @@ public class NetworkCircleMapView extends View {
                         pa1.setStyle(Paint.Style.STROKE);
                         canvas.drawPath(path2,pa1);
 
-                        fifthPaint.setColor(mContext.getResources().getColor(R.color.STATIC_COLOR));
-                        fifthPaint.setStrokeWidth(8);
-                        fifthPaint.setStyle(Paint.Style.FILL);
+                        //draw subCircle subItem describe info
                         Rect thirdRect = new Rect();
                         String temp = "Pool";
-                        fifthPaint.setTextSize(35);
                         if(temp != null && temp.length() > 0){
-                            float textWidth = fifthPaint.measureText(temp);
+                            float textWidth = subCircleSubItemTextPaint.measureText(temp);
                             if(textWidth > subItemTouchArea * 2){
-                                int subIndex = fifthPaint.breakText(temp,0,temp.length(),true,subItemTouchArea * 2,null);
+                                int subIndex = subCircleSubItemTextPaint.breakText(temp,0,temp.length(),true,subItemTouchArea * 2,null);
                                 temp = temp.substring(0,subIndex - 3) + "...";
                             }
                         }
-                        fifthPaint.getTextBounds(temp,0,temp.length(),thirdRect);
-                        canvas.drawText(temp,subPoints[j * 2] - ((thirdRect.right - thirdRect.left)/2),subPoints[j * 2 + 1] + subItemRadius + (thirdRect.bottom - thirdRect.top) + 10,fifthPaint);
+                        subCircleSubItemTextPaint.getTextBounds(temp,0,temp.length(),thirdRect);
+                        canvas.drawText(temp,subPoints[j * 2] - ((thirdRect.right - thirdRect.left)/2),subPoints[j * 2 + 1] + subItemRadius + (thirdRect.bottom - thirdRect.top) + 10,subCircleSubItemTextPaint);
                     }
                 }
             }
@@ -348,5 +404,9 @@ public class NetworkCircleMapView extends View {
         DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         int dp = (int)((float) px / metrics.density);
         return dp;
+    }
+
+    interface OnClickListener{
+        void onClick();
     }
 }
