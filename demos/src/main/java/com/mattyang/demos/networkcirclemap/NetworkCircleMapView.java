@@ -11,10 +11,13 @@ import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
 import com.mattyang.demos.R;
+
+import java.util.ArrayList;
 
 
 public class NetworkCircleMapView extends View {
@@ -30,7 +33,8 @@ public class NetworkCircleMapView extends View {
     private int subItemTouchArea = 67;
     private int maxPointsCount = 9;
     private int mainCount = 4;
-    private int subCount = maxPointsCount - mainCount - 1;
+//    private int subCount = maxPointsCount - mainCount - 1;
+    private int subCount = 4;
     private int mainSelectedItemTouchAreaY = 0;
     private int subSelectedItemTouchAreaY = 0;
     Context mContext;
@@ -47,6 +51,12 @@ public class NetworkCircleMapView extends View {
     Paint subCirclePaint;
     Paint subCircleSubItemPaint;
     Paint subCircleSubItemTextPaint;
+    ArrayList<NetworkItem> mainList = new ArrayList<>();
+    ArrayList<NetworkItem> subList = new ArrayList<>();
+    float[] mainPoints;
+    float[] subPoints;
+    NetworkItem centerItem = new NetworkItem();
+    private OnClickListener mOnClickListener;
 
 
     public NetworkCircleMapView(Context context) {
@@ -79,6 +89,57 @@ public class NetworkCircleMapView extends View {
         centerY = (bottom - top - getPaddingBottom() - getPaddingTop()) / 2;
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                return true;
+            case MotionEvent.ACTION_UP:
+                float x = event.getX();
+                float y = event.getY();
+                if (x >= centerX - mainItemTouchArea && x <= centerX + mainItemTouchArea) {
+                    if (y >= centerY - mainItemTouchArea && y <= mainSelectedItemTouchAreaY) {
+                        if (mOnClickListener != null) {
+                            mOnClickListener.onClick(centerItem);
+                        }
+                    }
+                }
+                for (int i = 0; i < mainList.size();i++){
+                    if(i != 0){
+                        if(x >= mainPoints[i * 2] - subItemTouchArea && x <= mainPoints[i * 2] + subItemTouchArea){
+                            if(y >= mainPoints[i * 2 + 1] - subItemTouchArea && y <= mainPoints[i * 2 + 1] + subItemTouchArea){
+                                if(mOnClickListener != null){
+                                    mOnClickListener.onClick(mainList.get(i));
+                                }
+                            }
+                        }
+                    } else{
+                        if(x >= mainPoints[i * 2] - subItemTouchArea && x <= mainPoints[i * 2] + subItemTouchArea){
+                            if(y >= mainPoints[i * 2 + 1] - subItemTouchArea && y <= subSelectedItemTouchAreaY){
+                                if(mOnClickListener != null){
+                                    mOnClickListener.onClick(mainList.get(i));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for(int m = 0; m < subList.size(); m++){
+                    if(x >= subPoints[m * 2] - subItemTouchArea && x <= subPoints[m * 2] + subItemTouchArea){
+                        if(y >= subPoints[m * 2 + 1] - subItemTouchArea && y <= subPoints[m * 2 + 1] + subItemTouchArea){
+                            if(mOnClickListener != null){
+                                mOnClickListener.onClick(subList.get(m));
+                            }
+                        }
+                    }
+                }
+           return true;
+        }
+        return super.onTouchEvent(event);
+    }
+
     private void initData(){
         mainCircleRadius = dp2px(140);
         mainItemRadius = dp2px(28);
@@ -88,6 +149,24 @@ public class NetworkCircleMapView extends View {
         subItemRadius = dp2px(10);
         subItemSelectedRadius = dp2px(13);
         subItemTouchArea = dp2px(22);
+        for(int i = 0; i < 4;i++){
+            NetworkItem item = new NetworkItem();
+            item.setName("Lobby");
+            item.setPhoneNickName("chelsea Pixel");
+            item.setIndex(i);
+            mainList.add(item);
+        }
+        for(int j = 0; j < 4; j++){
+            NetworkItem item = new NetworkItem();
+            item.setName("Pool");
+            item.setIndex(j + 100);
+            subList.add(item);
+        }
+        centerItem.setName("2 Floor");
+        centerItem.setPhoneNickName("Chelsea Iphone");
+        centerItem.setIndex(999);
+        mainCount = mainList.size();
+        subCount = subList.size();
     }
 
     private void initPaints(){
@@ -179,109 +258,117 @@ public class NetworkCircleMapView extends View {
         canvas.drawCircle(centerX,centerY,mainItemRadius,mainItemPaint);
         canvas.drawBitmap(bitmap,new Rect(0,0,bitmap.getWidth(),bitmap.getHeight()),new Rect(centerX - bitmap.getWidth() /2,
                                             centerY - bitmap.getHeight() /2,centerX + bitmap.getWidth() /2,centerY + bitmap.getHeight() /2),mainItemPaint);
-        //draw
+        //draw main item selected
         canvas.drawCircle(centerX,centerY,mainItemSelectedRadius,mainItemSelectedPaint);
 
         //draw main item describe info line one
         Rect rect = new Rect();
-        String firstValue = "2 Floor";
-        if(firstValue != null && firstValue.length() > 0){
-            float textWidth = mainItemTextPaint.measureText(firstValue);
-            if(textWidth > mainItemTouchArea * 2){
-                int subIndex = mainItemTextPaint.breakText(firstValue,0,firstValue.length(),true,mainItemTouchArea * 2,null);
-                firstValue = firstValue.substring(0,subIndex - 3) + "...";
+        if(centerItem.getName() != null) {
+            String firstValue = centerItem.getName();
+            if (firstValue != null && firstValue.length() > 0) {
+                float textWidth = mainItemTextPaint.measureText(firstValue);
+                if (textWidth > mainItemTouchArea * 2) {
+                    int subIndex = mainItemTextPaint.breakText(firstValue, 0, firstValue.length(), true, mainItemTouchArea * 2, null);
+                    firstValue = firstValue.substring(0, subIndex - 3) + "...";
+                }
             }
+            mainItemTextPaint.getTextBounds(firstValue, 0, firstValue.length(), rect);
+            canvas.drawText(firstValue, centerX - ((rect.right - rect.left) / 2), centerY + mainItemSelectedRadius + (rect.bottom - rect.top) + 10, mainItemTextPaint);
         }
-        mainItemTextPaint.getTextBounds(firstValue,0,firstValue.length(),rect);
-        canvas.drawText(firstValue,centerX - ((rect.right - rect.left)/2),centerY + mainItemSelectedRadius + (rect.bottom - rect.top) + 10,mainItemTextPaint);
         int centerToFirstLine = centerY + mainItemSelectedRadius + (rect.bottom - rect.top) + 20;
 
         //draw main item describe info line two
         rect = new Rect();
-        String secondValue = "Chelsea Iphone";
-        if(secondValue != null && secondValue.length() > 0){
-            float width = mainItemSelectedTextPaint.measureText(secondValue);
-            if(width > mainItemTouchArea * 2){
-                int subIndex = mainItemSelectedTextPaint.breakText(secondValue,0,secondValue.length(),true,mainItemTouchArea * 2,null);
-                secondValue = secondValue.substring(0,subIndex - 3) + "...";
+        if(centerItem.getPhoneNickName() != null) {
+            String secondValue = centerItem.getPhoneNickName();
+            if (secondValue != null && secondValue.length() > 0) {
+                float width = mainItemSelectedTextPaint.measureText(secondValue);
+                if (width > mainItemTouchArea * 2) {
+                    int subIndex = mainItemSelectedTextPaint.breakText(secondValue, 0, secondValue.length(), true, mainItemTouchArea * 2, null);
+                    secondValue = secondValue.substring(0, subIndex - 3) + "...";
+                }
             }
+            mainItemSelectedTextPaint.getTextBounds(secondValue, 0, secondValue.length(), rect);
+            canvas.drawText(secondValue, centerX - ((rect.right - rect.left) / 2), centerToFirstLine + (rect.bottom - rect.top) + 5, mainItemSelectedTextPaint);
         }
-        mainItemSelectedTextPaint.getTextBounds(secondValue,0,secondValue.length(),rect);
-        canvas.drawText(secondValue,centerX - ((rect.right - rect.left)/2),centerToFirstLine + (rect.bottom - rect.top)+5,mainItemSelectedTextPaint);
         mainSelectedItemTouchAreaY = centerToFirstLine + (rect.bottom - rect.top)+5;
 
-        Path path = new Path();
-        path.moveTo(centerX - mainItemTouchArea,centerY - mainItemTouchArea);
-        path.lineTo(centerX + mainItemTouchArea,centerY - mainItemTouchArea);
-        path.lineTo(centerX + mainItemTouchArea,mainSelectedItemTouchAreaY);
-        path.lineTo(centerX - mainItemTouchArea,mainSelectedItemTouchAreaY);
-        path.lineTo(centerX - mainItemTouchArea,centerY - mainItemTouchArea);
-        Paint pa3 = new Paint();
-        pa3.setColor(Color.RED);
-        pa3.setStrokeWidth(5);
-        pa3.setStyle(Paint.Style.STROKE);
-        canvas.drawPath(path,pa3);
+//        Path path = new Path();
+//        path.moveTo(centerX - mainItemTouchArea,centerY - mainItemTouchArea);
+//        path.lineTo(centerX + mainItemTouchArea,centerY - mainItemTouchArea);
+//        path.lineTo(centerX + mainItemTouchArea,mainSelectedItemTouchAreaY);
+//        path.lineTo(centerX - mainItemTouchArea,mainSelectedItemTouchAreaY);
+//        path.lineTo(centerX - mainItemTouchArea,centerY - mainItemTouchArea);
+//        Paint pa3 = new Paint();
+//        pa3.setColor(Color.RED);
+//        pa3.setStrokeWidth(5);
+//        pa3.setStyle(Paint.Style.STROKE);
+//        canvas.drawPath(path,pa3);
 
-        float[] mainPoints = generatePoints(centerX,centerY,mainCircleRadius,mainCount);
+        mainPoints = generatePoints(centerX,centerY,mainCircleRadius,mainCount);
         for(int i = 0; i < mainCount;i++){
             //draw subItem on main circle
             canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemRadius,subItemPaint);
 
             //draw subItem describe info line one
             Rect subRect = new Rect();
-            String subfirstValue = "Lobby";
-            if(subfirstValue != null && subfirstValue.length() > 0){
-                float textWidth = subItemTextPaint.measureText(subfirstValue);
-                if(textWidth > subItemTouchArea * 2){
-                    int subIndex = subItemTextPaint.breakText(subfirstValue,0,subfirstValue.length(),true,subItemTouchArea * 2,null);
-                    subfirstValue = subfirstValue.substring(0,subIndex - 3) + "...";
+            if(mainList.get(i).getName() != null) {
+                String subfirstValue = mainList.get(i).getName();
+                if (subfirstValue != null && subfirstValue.length() > 0) {
+                    float textWidth = subItemTextPaint.measureText(subfirstValue);
+                    if (textWidth > subItemTouchArea * 2) {
+                        int subIndex = subItemTextPaint.breakText(subfirstValue, 0, subfirstValue.length(), true, subItemTouchArea * 2, null);
+                        subfirstValue = subfirstValue.substring(0, subIndex - 3) + "...";
+                    }
                 }
+                subItemTextPaint.getTextBounds(subfirstValue, 0, subfirstValue.length(), subRect);
+                canvas.drawText(subfirstValue, mainPoints[i * 2] - ((subRect.right - subRect.left) / 2), mainPoints[i * 2 + 1] + subItemSelectedRadius + (subRect.bottom - subRect.top) + 10, subItemTextPaint);
             }
-            subItemTextPaint.getTextBounds(subfirstValue,0,subfirstValue.length(),subRect);
-            canvas.drawText(subfirstValue,mainPoints[i * 2] - ((subRect.right - subRect.left)/2),mainPoints[i * 2 + 1] + subItemSelectedRadius + (subRect.bottom - subRect.top) + 10,subItemTextPaint);
             int subCenterToFirstLine = (int)(mainPoints[i * 2 + 1] + subItemSelectedRadius + (subRect.bottom - subRect.top) + 10);
 
-            if(i != 0) {
-                Path path1 = new Path();
-                path1.moveTo(mainPoints[i * 2] - subItemTouchArea, mainPoints[i * 2 + 1] - subItemTouchArea);
-                path1.lineTo(mainPoints[i * 2] + subItemTouchArea, mainPoints[i * 2 + 1] - subItemTouchArea);
-                path1.lineTo(mainPoints[i * 2] + subItemTouchArea, mainPoints[i * 2 + 1] + subItemTouchArea);
-                path1.lineTo(mainPoints[i * 2] - subItemTouchArea, mainPoints[i * 2 + 1] + subItemTouchArea);
-                path1.lineTo(mainPoints[i * 2] - subItemTouchArea, mainPoints[i * 2 + 1] - subItemTouchArea);
-                Paint pa = new Paint();
-                pa.setColor(Color.RED);
-                pa.setStrokeWidth(5);
-                pa.setStyle(Paint.Style.STROKE);
-                canvas.drawPath(path1, pa);
-            }
+//            if(i != 0) {
+//                Path path1 = new Path();
+//                path1.moveTo(mainPoints[i * 2] - subItemTouchArea, mainPoints[i * 2 + 1] - subItemTouchArea);
+//                path1.lineTo(mainPoints[i * 2] + subItemTouchArea, mainPoints[i * 2 + 1] - subItemTouchArea);
+//                path1.lineTo(mainPoints[i * 2] + subItemTouchArea, mainPoints[i * 2 + 1] + subItemTouchArea);
+//                path1.lineTo(mainPoints[i * 2] - subItemTouchArea, mainPoints[i * 2 + 1] + subItemTouchArea);
+//                path1.lineTo(mainPoints[i * 2] - subItemTouchArea, mainPoints[i * 2 + 1] - subItemTouchArea);
+//                Paint pa = new Paint();
+//                pa.setColor(Color.RED);
+//                pa.setStrokeWidth(5);
+//                pa.setStyle(Paint.Style.STROKE);
+//                canvas.drawPath(path1, pa);
+//            }
 
 
             if(i == 0){
                 //draw subItem describe info line two
                 Rect secondRect = new Rect();
-                String subsecondValue = "Teri iPhone";
-                if(subsecondValue != null && subsecondValue.length() > 0){
-                    float width = subItemSelectedTextPaint.measureText(subsecondValue);
-                    if(width > subItemTouchArea * 2){
-                        int subIndex = subItemSelectedTextPaint.breakText(subsecondValue,0,subsecondValue.length(),true,subItemTouchArea * 2,null);
-                        subsecondValue = subsecondValue.substring(0,subIndex - 3) + "...";
+                if(mainList.get(i).getPhoneNickName() != null) {
+                    String subsecondValue = mainList.get(i).getPhoneNickName();
+                    if (subsecondValue != null && subsecondValue.length() > 0) {
+                        float width = subItemSelectedTextPaint.measureText(subsecondValue);
+                        if (width > subItemTouchArea * 2) {
+                            int subIndex = subItemSelectedTextPaint.breakText(subsecondValue, 0, subsecondValue.length(), true, subItemTouchArea * 2, null);
+                            subsecondValue = subsecondValue.substring(0, subIndex - 3) + "...";
+                        }
                     }
+                    subItemSelectedTextPaint.getTextBounds(subsecondValue, 0, subsecondValue.length(), secondRect);
+                    canvas.drawText(subsecondValue, mainPoints[i * 2] - ((secondRect.right - secondRect.left) / 2), subCenterToFirstLine + (secondRect.bottom - secondRect.top) + 5, subItemSelectedTextPaint);
                 }
-                subItemSelectedTextPaint.getTextBounds(subsecondValue,0,subsecondValue.length(),secondRect);
-                canvas.drawText(subsecondValue,mainPoints[i * 2] - ((secondRect.right - secondRect.left)/2),subCenterToFirstLine + (secondRect.bottom - secondRect.top)+5,subItemSelectedTextPaint);
                 subSelectedItemTouchAreaY = subCenterToFirstLine + (secondRect.bottom - secondRect.top)+5;
 
-                Path path4 = new Path();
-                path4.moveTo(mainPoints[i * 2] - subItemTouchArea,mainPoints[i * 2 + 1] - subItemTouchArea);
-                path4.lineTo(mainPoints[i * 2] + subItemTouchArea,mainPoints[i * 2 + 1] - subItemTouchArea);
-                path4.lineTo(mainPoints[i * 2] + subItemTouchArea,subSelectedItemTouchAreaY);
-                path4.lineTo(mainPoints[i * 2] - subItemTouchArea,subSelectedItemTouchAreaY);
-                path4.lineTo(mainPoints[i * 2] - subItemTouchArea,mainPoints[i * 2 + 1] - subItemTouchArea);
-                Paint pap = new Paint();
-                pap.setColor(Color.RED);
-                pap.setStrokeWidth(5);
-                pap.setStyle(Paint.Style.STROKE);
-                canvas.drawPath(path4,pap);
+//                Path path4 = new Path();
+//                path4.moveTo(mainPoints[i * 2] - subItemTouchArea,mainPoints[i * 2 + 1] - subItemTouchArea);
+//                path4.lineTo(mainPoints[i * 2] + subItemTouchArea,mainPoints[i * 2 + 1] - subItemTouchArea);
+//                path4.lineTo(mainPoints[i * 2] + subItemTouchArea,subSelectedItemTouchAreaY);
+//                path4.lineTo(mainPoints[i * 2] - subItemTouchArea,subSelectedItemTouchAreaY);
+//                path4.lineTo(mainPoints[i * 2] - subItemTouchArea,mainPoints[i * 2 + 1] - subItemTouchArea);
+//                Paint pap = new Paint();
+//                pap.setColor(Color.RED);
+//                pap.setStrokeWidth(5);
+//                pap.setStyle(Paint.Style.STROKE);
+//                canvas.drawPath(path4,pap);
 
                 //draw subItem is selected circle
                 canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemSelectedRadius,subItemSelectedCirclePaint);
@@ -289,35 +376,37 @@ public class NetworkCircleMapView extends View {
                 if(subCount != 0) {
                     //draw subCircle
                     canvas.drawCircle(mainPoints[i * 2], mainPoints[i * 2 + 1], subCircleRadius, subCirclePaint);
-                    float[] subPoints = generatePoints((int) mainPoints[i * 2], (int) mainPoints[i * 2 + 1], subCircleRadius, subCount);
+                    subPoints = generatePoints((int) mainPoints[i * 2], (int) mainPoints[i * 2 + 1], subCircleRadius, subCount);
                     for(int j = 0; j < subCount; j++){
                         //draw subItem on subCircle
                         canvas.drawCircle(subPoints[j * 2],subPoints[j * 2 + 1],subItemRadius,subCircleSubItemPaint);
 
-                        Path path2 = new Path();
-                        path2.moveTo(subPoints[j * 2] - subItemTouchArea,subPoints[j * 2 + 1] - subItemTouchArea);
-                        path2.lineTo(subPoints[j * 2] + subItemTouchArea,subPoints[j * 2 + 1] - subItemTouchArea);
-                        path2.lineTo(subPoints[j * 2] + subItemTouchArea,subPoints[j * 2 + 1] + subItemTouchArea);
-                        path2.lineTo(subPoints[j * 2] - subItemTouchArea,subPoints[j * 2 + 1] + subItemTouchArea);
-                        path2.lineTo(subPoints[j * 2] - subItemTouchArea,subPoints[j * 2 + 1] - subItemTouchArea);
-                        Paint pa1 = new Paint();
-                        pa1.setColor(Color.RED);
-                        pa1.setStrokeWidth(5);
-                        pa1.setStyle(Paint.Style.STROKE);
-                        canvas.drawPath(path2,pa1);
+//                        Path path2 = new Path();
+//                        path2.moveTo(subPoints[j * 2] - subItemTouchArea,subPoints[j * 2 + 1] - subItemTouchArea);
+//                        path2.lineTo(subPoints[j * 2] + subItemTouchArea,subPoints[j * 2 + 1] - subItemTouchArea);
+//                        path2.lineTo(subPoints[j * 2] + subItemTouchArea,subPoints[j * 2 + 1] + subItemTouchArea);
+//                        path2.lineTo(subPoints[j * 2] - subItemTouchArea,subPoints[j * 2 + 1] + subItemTouchArea);
+//                        path2.lineTo(subPoints[j * 2] - subItemTouchArea,subPoints[j * 2 + 1] - subItemTouchArea);
+//                        Paint pa1 = new Paint();
+//                        pa1.setColor(Color.RED);
+//                        pa1.setStrokeWidth(5);
+//                        pa1.setStyle(Paint.Style.STROKE);
+//                        canvas.drawPath(path2,pa1);
 
                         //draw subCircle subItem describe info
                         Rect thirdRect = new Rect();
-                        String temp = "Pool";
-                        if(temp != null && temp.length() > 0){
-                            float textWidth = subCircleSubItemTextPaint.measureText(temp);
-                            if(textWidth > subItemTouchArea * 2){
-                                int subIndex = subCircleSubItemTextPaint.breakText(temp,0,temp.length(),true,subItemTouchArea * 2,null);
-                                temp = temp.substring(0,subIndex - 3) + "...";
+                        if(subList.get(j).getName() != null) {
+                            String temp = subList.get(j).getName();
+                            if (temp != null && temp.length() > 0) {
+                                float textWidth = subCircleSubItemTextPaint.measureText(temp);
+                                if (textWidth > subItemTouchArea * 2) {
+                                    int subIndex = subCircleSubItemTextPaint.breakText(temp, 0, temp.length(), true, subItemTouchArea * 2, null);
+                                    temp = temp.substring(0, subIndex - 3) + "...";
+                                }
                             }
+                            subCircleSubItemTextPaint.getTextBounds(temp, 0, temp.length(), thirdRect);
+                            canvas.drawText(temp, subPoints[j * 2] - ((thirdRect.right - thirdRect.left) / 2), subPoints[j * 2 + 1] + subItemRadius + (thirdRect.bottom - thirdRect.top) + 10, subCircleSubItemTextPaint);
                         }
-                        subCircleSubItemTextPaint.getTextBounds(temp,0,temp.length(),thirdRect);
-                        canvas.drawText(temp,subPoints[j * 2] - ((thirdRect.right - thirdRect.left)/2),subPoints[j * 2 + 1] + subItemRadius + (thirdRect.bottom - thirdRect.top) + 10,subCircleSubItemTextPaint);
                     }
                 }
             }
@@ -406,7 +495,11 @@ public class NetworkCircleMapView extends View {
         return dp;
     }
 
-    interface OnClickListener{
-        void onClick();
+    public interface OnClickListener{
+        void onClick(NetworkItem item);
+    }
+
+    public void setNetWorkOnClickListener(OnClickListener listener){
+        mOnClickListener = listener;
     }
 }
