@@ -34,9 +34,8 @@ public class NetworkCircleMapView extends View {
     private int subItemSelectedRadius = 33;
     private int subItemTouchArea = 67;
     private int maxPointsCount = 9;
-    int mainCount = 4;
-//    private int subCount = maxPointsCount - mainCount - 1;
-    int subCount = 4;
+    int mainCount = 0;
+    int subCount = 0;
     private int mainSelectedItemTouchAreaY = 0;
     private int subSelectedItemTouchAreaY = 0;
     Context mContext;
@@ -71,7 +70,6 @@ public class NetworkCircleMapView extends View {
     public NetworkCircleMapView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.mContext = context;
-         bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.router);
          initData();
          initPaints();
     }
@@ -154,6 +152,11 @@ public class NetworkCircleMapView extends View {
         subItemTouchArea = dp2px(22);
     }
 
+    /**
+     * DataSource of WifiSON list as ArrayList, implement parsing data layers.Currently we just need three layers
+     * include master
+     * @param dataSource
+     */
     public void setDataList(ArrayList<NetworkItem> dataSource){
         HashMap<NetworkItem,ArrayList<NetworkItem>> map = new HashMap<>();
         for(NetworkItem item : dataSource){
@@ -216,6 +219,14 @@ public class NetworkCircleMapView extends View {
         if(mainCount + subCount + 1 > maxPointsCount){
             subCount = maxPointsCount - 1 - mainCount;
         }
+    }
+
+    public void setCenterItemBitmap(int resourceId){
+        bitmap = BitmapFactory.decodeResource(getResources(),resourceId);
+    }
+
+    public void setCenterItemBitmap(Bitmap bitmap){
+        this.bitmap = bitmap;
     }
 
     private void initPaints(){
@@ -371,9 +382,9 @@ public class NetworkCircleMapView extends View {
                     }
                 }
                 subItemTextPaint.getTextBounds(subfirstValue, 0, subfirstValue.length(), subRect);
-                canvas.drawText(subfirstValue, mainPoints[i * 2] - ((subRect.right - subRect.left) / 2), mainPoints[i * 2 + 1] + subItemSelectedRadius + (subRect.bottom - subRect.top) + 10, subItemTextPaint);
+                canvas.drawText(subfirstValue, mainPoints[i * 2] - ((subRect.right - subRect.left) / 2), mainPoints[i * 2 + 1] + subItemRadius + (subRect.bottom - subRect.top) + 10, subItemTextPaint);
             }
-            int subCenterToFirstLine = (int)(mainPoints[i * 2 + 1] + subItemSelectedRadius + (subRect.bottom - subRect.top) + 10);
+            int subCenterToFirstLine = (int)(mainPoints[i * 2 + 1] + subItemRadius + (subRect.bottom - subRect.top) + 10);
 
 //            if(i != 0) {
 //                Path path1 = new Path();
@@ -420,7 +431,7 @@ public class NetworkCircleMapView extends View {
 //                canvas.drawPath(path4,pap);
 
                 //draw subItem is selected circle
-                canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemSelectedRadius,subItemSelectedCirclePaint);
+//                canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemSelectedRadius,subItemSelectedCirclePaint);
 
                 if(subCount != 0) {
                     //draw subCircle
@@ -548,6 +559,10 @@ public class NetworkCircleMapView extends View {
         void onClick(NetworkItem item);
     }
 
+    /**
+     * NetworkOnClickListener implement onClick event on NetworkCircleMap
+     * @param listener
+     */
     public void setNetWorkOnClickListener(OnClickListener listener){
         mOnClickListener = listener;
     }

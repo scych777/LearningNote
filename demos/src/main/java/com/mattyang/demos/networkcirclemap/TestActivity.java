@@ -56,5 +56,6 @@ public class TestActivity extends Activity {
         list1.add(item12);
         list1.add(item13);
         map.setDataList(list1);
+        map.setCenterItemBitmap(R.drawable.router);
     }
 }
