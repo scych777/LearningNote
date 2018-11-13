@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -18,6 +19,7 @@ import android.view.WindowManager;
 import com.mattyang.demos.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class NetworkCircleMapView extends View {
@@ -32,9 +34,9 @@ public class NetworkCircleMapView extends View {
     private int subItemSelectedRadius = 33;
     private int subItemTouchArea = 67;
     private int maxPointsCount = 9;
-    private int mainCount = 4;
+    int mainCount = 4;
 //    private int subCount = maxPointsCount - mainCount - 1;
-    private int subCount = 4;
+    int subCount = 4;
     private int mainSelectedItemTouchAreaY = 0;
     private int subSelectedItemTouchAreaY = 0;
     Context mContext;
@@ -140,6 +142,7 @@ public class NetworkCircleMapView extends View {
         return super.onTouchEvent(event);
     }
 
+
     private void initData(){
         mainCircleRadius = dp2px(140);
         mainItemRadius = dp2px(28);
@@ -149,24 +152,70 @@ public class NetworkCircleMapView extends View {
         subItemRadius = dp2px(10);
         subItemSelectedRadius = dp2px(13);
         subItemTouchArea = dp2px(22);
-        for(int i = 0; i < 4;i++){
-            NetworkItem item = new NetworkItem();
-            item.setName("Lobby");
-            item.setPhoneNickName("chelsea Pixel");
-            item.setIndex(i);
-            mainList.add(item);
+    }
+
+    public void setDataList(ArrayList<NetworkItem> dataSource){
+        HashMap<NetworkItem,ArrayList<NetworkItem>> map = new HashMap<>();
+        for(NetworkItem item : dataSource){
+            if(TextUtils.isEmpty(item.getUplinkMac())){
+                centerItem = item;
+            }else{
+                if(item.getUplinkMac().equals(centerItem.mac)){
+                    mainList.add(item);
+                }else{
+                    for(NetworkItem value : mainList) {
+                        if (item.getUplinkMac().equals(value.mac)){
+                            if(map.get(value) == null){
+                                ArrayList<NetworkItem> list = new ArrayList<>();
+                                list.add(item);
+                                map.put(value,list);
+                            }else {
+                                map.get(value).add(item);
+                            }
+                        }
+                    }
+                }
+            }
         }
-        for(int j = 0; j < 4; j++){
-            NetworkItem item = new NetworkItem();
-            item.setName("Pool");
-            item.setIndex(j + 100);
-            subList.add(item);
+        int max = 0;
+        int subscript = -1;
+        for(int i = 0; i < mainList.size(); i ++){
+            for(int j = i + 1; j < mainList.size(); j++) {
+                if (map.get(mainList.get(i)) != null && map.get(mainList.get(j)) != null) {
+                    if (max < map.get(mainList.get(i)).size() || max < map.get(mainList.get(j)).size()) {
+                        if (map.get(mainList.get(i)).size() >= map.get(mainList.get(j)).size()) {
+                            max = map.get(mainList.get(i)).size();
+                            subscript = i;
+                        } else {
+                            max = map.get(mainList.get(j)).size();
+                            subscript = j;
+                        }
+                    }
+                }else{
+                    if(map.get(mainList.get(i)) != null){
+                        if(max < map.get(mainList.get(i)).size()){
+                            max = map.get(mainList.get(i)).size();
+                            subscript = i;
+                        }
+                    }
+                    if(map.get(mainList.get(j)) != null){
+                        if(max < map.get(mainList.get(j)).size()){
+                            max = map.get(mainList.get(j)).size();
+                            subscript = j;
+                        }
+                    }
+                }
+            }
         }
-        centerItem.setName("2 Floor");
-        centerItem.setPhoneNickName("Chelsea Iphone");
-        centerItem.setIndex(999);
+        subList = map.get(mainList.get(subscript));
+        NetworkItem item = mainList.get(subscript);
+        mainList.remove(item);
+        mainList.add(0,item);
         mainCount = mainList.size();
         subCount = subList.size();
+        if(mainCount + subCount + 1 > maxPointsCount){
+            subCount = maxPointsCount - 1 - mainCount;
+        }
     }
 
     private void initPaints(){
