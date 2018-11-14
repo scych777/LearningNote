@@ -55,9 +55,10 @@ public class NetworkCircleMapView extends View {
     ArrayList<NetworkItem> mainList = new ArrayList<>();
     ArrayList<NetworkItem> subList = new ArrayList<>();
     float[] mainPoints;
-    float[] subPoints;
     NetworkItem centerItem = new NetworkItem();
     private OnClickListener mOnClickListener;
+    HashMap<NetworkItem,ArrayList<NetworkItem>> map = new HashMap<>();
+    HashMap<NetworkItem,float[]> thirdLayerPoints = new HashMap<>();
 
 
     public NetworkCircleMapView(Context context) {
@@ -126,11 +127,24 @@ public class NetworkCircleMapView extends View {
                     }
                 }
 
-                for(int m = 0; m < subList.size(); m++){
-                    if(x >= subPoints[m * 2] - subItemTouchArea && x <= subPoints[m * 2] + subItemTouchArea){
-                        if(y >= subPoints[m * 2 + 1] - subItemTouchArea && y <= subPoints[m * 2 + 1] + subItemTouchArea){
-                            if(mOnClickListener != null){
-                                mOnClickListener.onClick(subList.get(m));
+//                for(int m = 0; m < subList.size(); m++){
+//                    if(x >= subPoints[m * 2] - subItemTouchArea && x <= subPoints[m * 2] + subItemTouchArea){
+//                        if(y >= subPoints[m * 2 + 1] - subItemTouchArea && y <= subPoints[m * 2 + 1] + subItemTouchArea){
+//                            if(mOnClickListener != null){
+//                                mOnClickListener.onClick(subList.get(m));
+//                            }
+//                        }
+//                    }
+//                }
+                for(NetworkItem item : mainList){
+                    if(thirdLayerPoints.get(item)!= null && thirdLayerPoints.get(item).length > 0){
+                        for(int m = 0; m < map.get(item).size(); m++){
+                            if(x >= thirdLayerPoints.get(item)[m * 2] - subItemTouchArea && x <= thirdLayerPoints.get(item)[m * 2] + subItemTouchArea){
+                                if(y >= thirdLayerPoints.get(item)[m * 2 + 1] -subItemTouchArea && y <= thirdLayerPoints.get(item)[m * 2 + 1] + subItemTouchArea){
+                                    if(mOnClickListener != null){
+                                        mOnClickListener.onClick(map.get(item).get(m));
+                                    }
+                                }
                             }
                         }
                     }
@@ -142,14 +156,14 @@ public class NetworkCircleMapView extends View {
 
 
     private void initData(){
-        mainCircleRadius = dp2px(140);
-        mainItemRadius = dp2px(28);
-        mainItemSelectedRadius = dp2px(32);
-        mainItemTouchArea = dp2px(40);
-        subCircleRadius = dp2px(70);
-        subItemRadius = dp2px(10);
+        mainCircleRadius = dp2px(110);
+        mainItemRadius = dp2px(23);
+        mainItemSelectedRadius = dp2px(27);
+        mainItemTouchArea = dp2px(35);
+        subCircleRadius = dp2px(40);
+        subItemRadius = dp2px(5);
         subItemSelectedRadius = dp2px(13);
-        subItemTouchArea = dp2px(22);
+        subItemTouchArea = dp2px(15);
     }
 
     /**
@@ -158,7 +172,6 @@ public class NetworkCircleMapView extends View {
      * @param dataSource
      */
     public void setDataList(ArrayList<NetworkItem> dataSource){
-        HashMap<NetworkItem,ArrayList<NetworkItem>> map = new HashMap<>();
         for(NetworkItem item : dataSource){
             if(TextUtils.isEmpty(item.getUplinkMac())){
                 centerItem = item;
@@ -210,15 +223,15 @@ public class NetworkCircleMapView extends View {
                 }
             }
         }
-        subList = map.get(mainList.get(subscript));
+//        subList = map.get(mainList.get(subscript));
         NetworkItem item = mainList.get(subscript);
         mainList.remove(item);
         mainList.add(0,item);
         mainCount = mainList.size();
-        subCount = subList.size();
-        if(mainCount + subCount + 1 > maxPointsCount){
-            subCount = maxPointsCount - 1 - mainCount;
-        }
+//        subCount = subList.size();
+//        if(mainCount + subCount + 1 > maxPointsCount){
+//            subCount = maxPointsCount - 1 - mainCount;
+//        }
     }
 
     public void setCenterItemBitmap(int resourceId){
@@ -272,13 +285,13 @@ public class NetworkCircleMapView extends View {
         subItemTextPaint.setColor(mContext.getResources().getColor(R.color.STATIC_COLOR));
         subItemTextPaint.setStrokeWidth(8);
         subItemTextPaint.setStyle(Paint.Style.FILL);
-        subItemTextPaint.setTextSize(35);
+        subItemTextPaint.setTextSize(20);
         subItemTextPaint.setAntiAlias(true);
 
         subItemSelectedTextPaint = new Paint();
         subItemSelectedTextPaint.setColor(mContext.getResources().getColor(R.color.light_blue));
         subItemSelectedTextPaint.setStrokeWidth(8);
-        subItemSelectedTextPaint.setTextSize(35);
+        subItemSelectedTextPaint.setTextSize(20);
         subItemSelectedTextPaint.setStyle(Paint.Style.FILL);
         subItemSelectedTextPaint.setAntiAlias(true);
 
@@ -304,7 +317,7 @@ public class NetworkCircleMapView extends View {
         subCircleSubItemTextPaint.setColor(mContext.getResources().getColor(R.color.STATIC_COLOR));
         subCircleSubItemTextPaint.setStrokeWidth(8);
         subCircleSubItemTextPaint.setStyle(Paint.Style.FILL);
-        subCircleSubItemTextPaint.setTextSize(35);
+        subCircleSubItemTextPaint.setTextSize(20);
         subCircleSubItemTextPaint.setAntiAlias(true);
     }
 
@@ -401,21 +414,21 @@ public class NetworkCircleMapView extends View {
 //            }
 
 
-            if(i == 0){
+//            if(i == 0){
                 //draw subItem describe info line two
                 Rect secondRect = new Rect();
-                if(mainList.get(i).getPhoneNickName() != null) {
-                    String subsecondValue = mainList.get(i).getPhoneNickName();
-                    if (subsecondValue != null && subsecondValue.length() > 0) {
-                        float width = subItemSelectedTextPaint.measureText(subsecondValue);
-                        if (width > subItemTouchArea * 2) {
-                            int subIndex = subItemSelectedTextPaint.breakText(subsecondValue, 0, subsecondValue.length(), true, subItemTouchArea * 2, null);
-                            subsecondValue = subsecondValue.substring(0, subIndex - 3) + "...";
-                        }
-                    }
-                    subItemSelectedTextPaint.getTextBounds(subsecondValue, 0, subsecondValue.length(), secondRect);
-                    canvas.drawText(subsecondValue, mainPoints[i * 2] - ((secondRect.right - secondRect.left) / 2), subCenterToFirstLine + (secondRect.bottom - secondRect.top) + 5, subItemSelectedTextPaint);
-                }
+//                if(mainList.get(i).getPhoneNickName() != null) {
+//                    String subsecondValue = mainList.get(i).getPhoneNickName();
+//                    if (subsecondValue != null && subsecondValue.length() > 0) {
+//                        float width = subItemSelectedTextPaint.measureText(subsecondValue);
+//                        if (width > subItemTouchArea * 2) {
+//                            int subIndex = subItemSelectedTextPaint.breakText(subsecondValue, 0, subsecondValue.length(), true, subItemTouchArea * 2, null);
+//                            subsecondValue = subsecondValue.substring(0, subIndex - 3) + "...";
+//                        }
+//                    }
+//                    subItemSelectedTextPaint.getTextBounds(subsecondValue, 0, subsecondValue.length(), secondRect);
+//                    canvas.drawText(subsecondValue, mainPoints[i * 2] - ((secondRect.right - secondRect.left) / 2), subCenterToFirstLine + (secondRect.bottom - secondRect.top) + 5, subItemSelectedTextPaint);
+//                }
                 subSelectedItemTouchAreaY = subCenterToFirstLine + (secondRect.bottom - secondRect.top)+5;
 
 //                Path path4 = new Path();
@@ -433,11 +446,13 @@ public class NetworkCircleMapView extends View {
                 //draw subItem is selected circle
 //                canvas.drawCircle(mainPoints[i * 2],mainPoints[i * 2 + 1],subItemSelectedRadius,subItemSelectedCirclePaint);
 
-                if(subCount != 0) {
+                if(map.get(mainList.get(i)) != null && map.get(mainList.get(i)).size() != 0) {
                     //draw subCircle
                     canvas.drawCircle(mainPoints[i * 2], mainPoints[i * 2 + 1], subCircleRadius, subCirclePaint);
-                    subPoints = generatePoints((int) mainPoints[i * 2], (int) mainPoints[i * 2 + 1], subCircleRadius, subCount);
-                    for(int j = 0; j < subCount; j++){
+                    float[] subPoints;
+                    subPoints = generatePoints((int) mainPoints[i * 2], (int) mainPoints[i * 2 + 1], subCircleRadius, map.get(mainList.get(i)).size());
+                    thirdLayerPoints.put(mainList.get(i),subPoints);
+                    for(int j = 0; j < map.get(mainList.get(i)).size(); j++){
                         //draw subItem on subCircle
                         canvas.drawCircle(subPoints[j * 2],subPoints[j * 2 + 1],subItemRadius,subCircleSubItemPaint);
 
@@ -455,8 +470,8 @@ public class NetworkCircleMapView extends View {
 
                         //draw subCircle subItem describe info
                         Rect thirdRect = new Rect();
-                        if(subList.get(j).getName() != null) {
-                            String temp = subList.get(j).getName();
+                        if(map.get(mainList.get(i)).get(j).getName() != null) {
+                            String temp = map.get(mainList.get(i)).get(j).getName();
                             if (temp != null && temp.length() > 0) {
                                 float textWidth = subCircleSubItemTextPaint.measureText(temp);
                                 if (textWidth > subItemTouchArea * 2) {
@@ -469,7 +484,7 @@ public class NetworkCircleMapView extends View {
                         }
                     }
                 }
-            }
+//            }
         }
     }
 
