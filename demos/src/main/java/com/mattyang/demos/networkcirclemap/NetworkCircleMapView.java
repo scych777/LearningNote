@@ -35,7 +35,6 @@ public class NetworkCircleMapView extends View {
     private int subItemTouchArea = 67;
     private int maxPointsCount = 9;
     int mainCount = 0;
-    int subCount = 0;
     private int mainSelectedItemTouchAreaY = 0;
     private int subSelectedItemTouchAreaY = 0;
     Context mContext;
@@ -108,7 +107,6 @@ public class NetworkCircleMapView extends View {
                     }
                 }
                 for (int i = 0; i < mainList.size();i++){
-                    if(i != 0){
                         if(x >= mainPoints[i * 2] - subItemTouchArea && x <= mainPoints[i * 2] + subItemTouchArea){
                             if(y >= mainPoints[i * 2 + 1] - subItemTouchArea && y <= mainPoints[i * 2 + 1] + subItemTouchArea){
                                 if(mOnClickListener != null){
@@ -116,26 +114,7 @@ public class NetworkCircleMapView extends View {
                                 }
                             }
                         }
-                    } else{
-                        if(x >= mainPoints[i * 2] - subItemTouchArea && x <= mainPoints[i * 2] + subItemTouchArea){
-                            if(y >= mainPoints[i * 2 + 1] - subItemTouchArea && y <= subSelectedItemTouchAreaY){
-                                if(mOnClickListener != null){
-                                    mOnClickListener.onClick(mainList.get(i));
-                                }
-                            }
-                        }
-                    }
                 }
-
-//                for(int m = 0; m < subList.size(); m++){
-//                    if(x >= subPoints[m * 2] - subItemTouchArea && x <= subPoints[m * 2] + subItemTouchArea){
-//                        if(y >= subPoints[m * 2 + 1] - subItemTouchArea && y <= subPoints[m * 2 + 1] + subItemTouchArea){
-//                            if(mOnClickListener != null){
-//                                mOnClickListener.onClick(subList.get(m));
-//                            }
-//                        }
-//                    }
-//                }
                 for(NetworkItem item : mainList){
                     if(thirdLayerPoints.get(item)!= null && thirdLayerPoints.get(item).length > 0){
                         for(int m = 0; m < map.get(item).size(); m++){
@@ -223,15 +202,38 @@ public class NetworkCircleMapView extends View {
                 }
             }
         }
-//        subList = map.get(mainList.get(subscript));
         NetworkItem item = mainList.get(subscript);
         mainList.remove(item);
         mainList.add(0,item);
         mainCount = mainList.size();
-//        subCount = subList.size();
-//        if(mainCount + subCount + 1 > maxPointsCount){
-//            subCount = maxPointsCount - 1 - mainCount;
-//        }
+        //Remove exceed item, make sure Max item count is 9
+        int subCount = maxPointsCount - 1 - mainCount;
+        int total = 0;
+        for(int i = 0; i < mainList.size(); i ++){
+            if(map.get(mainList.get(i)) != null) {
+                total += map.get(mainList.get(i)).size();
+            }
+        }
+        if(total - subCount > 0){
+            subCount = total - subCount;
+        }else{
+            subCount = 0;
+        }
+        while (subCount != 0) {
+            for(int i = mainList.size() - 1; i >= 0; i--) {
+                    if(map.get(mainList.get(i)) != null) {
+                        if (map.get(mainList.get(i)).size() >= subCount) {
+                            while (subCount != 0) {
+                                map.get(mainList.get(i)).remove(map.get(mainList.get(i)).size() - subCount);
+                                subCount--;
+                            }
+                        } else {
+                            subCount = subCount - map.get(mainList.get(i)).size();
+                            map.remove(mainList.get(i));
+                        }
+                    }
+                }
+        }
     }
 
     public void setCenterItemBitmap(int resourceId){
@@ -399,7 +401,6 @@ public class NetworkCircleMapView extends View {
             }
             int subCenterToFirstLine = (int)(mainPoints[i * 2 + 1] + subItemRadius + (subRect.bottom - subRect.top) + 10);
 
-//            if(i != 0) {
 //                Path path1 = new Path();
 //                path1.moveTo(mainPoints[i * 2] - subItemTouchArea, mainPoints[i * 2 + 1] - subItemTouchArea);
 //                path1.lineTo(mainPoints[i * 2] + subItemTouchArea, mainPoints[i * 2 + 1] - subItemTouchArea);
@@ -411,10 +412,8 @@ public class NetworkCircleMapView extends View {
 //                pa.setStrokeWidth(5);
 //                pa.setStyle(Paint.Style.STROKE);
 //                canvas.drawPath(path1, pa);
-//            }
 
 
-//            if(i == 0){
                 //draw subItem describe info line two
                 Rect secondRect = new Rect();
 //                if(mainList.get(i).getPhoneNickName() != null) {
@@ -484,7 +483,6 @@ public class NetworkCircleMapView extends View {
                         }
                     }
                 }
-//            }
         }
     }
 
