@@ -40,9 +40,9 @@ public class TestActivity extends Activity {
         item9.setIndex(103);
         NetworkItem item10 = new NetworkItem("11 Floor","00:11:22:33:44:B1","00:11:22:33:44:A3");
         item10.setIndex(104);
-        NetworkItem item11 = new NetworkItem("12 Floor","00:11:22:33:44:B2","00:11:22:33:44:A3");
+        NetworkItem item11 = new NetworkItem("12 Floor","00:11:22:33:44:B2","00:11:22:33:44:A2");
         item11.setIndex(105);
-        NetworkItem item12 = new NetworkItem("13 Floor","00:11:22:33:44:B3","00:11:22:33:44:A3");
+        NetworkItem item12 = new NetworkItem("13 Floor","00:11:22:33:44:B3","00:11:22:33:44:A2");
         item12.setIndex(106);
         NetworkItem item13 = new NetworkItem("14 Floor","00:11:22:33:44:B4","00:11:22:33:44:A3");
         item13.setIndex(107);
@@ -55,10 +55,10 @@ public class TestActivity extends Activity {
         list1.add(item6);
         list1.add(item7);
         list1.add(item8);
-        list1.add(item9);
+//        list1.add(item9);
         list1.add(item10);
         list1.add(item11);
-//        list1.add(item12);
+        list1.add(item12);
 //        list1.add(item13);
         map.setDataList(list1);
         map.setCenterItemBitmap(R.drawable.router);

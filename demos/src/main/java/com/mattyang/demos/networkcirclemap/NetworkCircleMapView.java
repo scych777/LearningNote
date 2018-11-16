@@ -449,7 +449,7 @@ public class NetworkCircleMapView extends View {
                     //draw subCircle
                     canvas.drawCircle(mainPoints[i * 2], mainPoints[i * 2 + 1], subCircleRadius, subCirclePaint);
                     float[] subPoints;
-                    subPoints = generatePoints((int) mainPoints[i * 2], (int) mainPoints[i * 2 + 1], subCircleRadius, map.get(mainList.get(i)).size());
+                    subPoints = generateSubPoints((int) mainPoints[i * 2], (int) mainPoints[i * 2 + 1], subCircleRadius, map.get(mainList.get(i)).size(),centerX,centerY);
                     thirdLayerPoints.put(mainList.get(i),subPoints);
                     for(int j = 0; j < map.get(mainList.get(i)).size(); j++){
                         //draw subItem on subCircle
@@ -556,6 +556,18 @@ public class NetworkCircleMapView extends View {
         return points;
     }
 
+    private float[] generateSubPoints(int x, int y, int radius, int count, int centerX,int centerY){
+        float[] points = new float[16];
+        double angle = getAngle(x,y,centerX,centerY);
+        for(int j = 0; j < count; j++){
+            double locationX = radius * (Math.cos(Math.PI * 2 / count * j - Math.PI / 2 + angle)) + x;
+            double locationY = radius * (Math.sin(Math.PI * 2 / count * j - Math.PI / 2 + angle)) + y;
+            points[j * 2] = (float)locationX;
+            points[j * 2 + 1] = (float) locationY;
+        }
+        return points;
+    }
+
     private int dp2px(int dp){
         DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         int px = (int)(dp * metrics.density);
@@ -566,6 +578,17 @@ public class NetworkCircleMapView extends View {
         DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         int dp = (int)((float) px / metrics.density);
         return dp;
+    }
+
+    private double getAngle(int pointX, int pointY, int centerX, int centerY){
+        double dx = pointX - centerX;
+        double dy = centerY - pointY;
+        double result = Math.toDegrees(Math.atan2(dy,dx));
+        if(result < 0){
+            result = 360d + result;
+        }
+        result = ((180 - result - 90) / 360) * Math.PI * 2;
+        return result;
     }
 
     public interface OnClickListener{
