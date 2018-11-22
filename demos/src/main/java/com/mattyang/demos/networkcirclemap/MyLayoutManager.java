@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MyLayoutManager extends RecyclerView.LayoutManager {
     private Context mContext;
@@ -43,6 +44,7 @@ public class MyLayoutManager extends RecyclerView.LayoutManager {
         int mainNo = 0;
         int childNo = 0;
         int parentIndex = -1;
+        HashMap<Integer,Integer> map = new HashMap<>();
         for(int i = 0; i <  getItemCount(); i++){
             View view = recycler.getViewForPosition(i);
             addView(view);
@@ -57,6 +59,7 @@ public class MyLayoutManager extends RecyclerView.LayoutManager {
                             (int)(main[mainNo * 2 +1] - height/2),
                             (int)(main[mainNo * 2]+width/2),
                             (int)(main[mainNo * 2 + 1]+height/2));
+                    map.put(i,mainNo);
                     mainNo++;
                     break;
                 case "C":
@@ -67,7 +70,7 @@ public class MyLayoutManager extends RecyclerView.LayoutManager {
                             }
                             parentIndex = j;
                             int childTotal = types.get(j).getChildCount();
-                            float[] child = generateSubPoints((int)(main[j * 2]),(int)(main[j * 2 + 1]),subCircleRadius,childTotal,centerX,centerY);
+                            float[] child = generateSubPoints((int)(main[map.get(j) * 2]),(int)(main[map.get(j) * 2 + 1]),subCircleRadius,childTotal,centerX,centerY);
                             if(child.length != 0) {
                                 layoutDecorated(view, (int) (child[childNo * 2] - width / 2),
                                         (int) (child[childNo * 2 + 1] - height / 2),
@@ -90,22 +93,25 @@ public class MyLayoutManager extends RecyclerView.LayoutManager {
             if(item.category.equals("P"))
                 parentCount++;
         }
-        if(types.get(types.size() - 1).equals("P")){
+        if(types.get(types.size() - 1).getCategory().equals("P")){
             for(int j = 0 ; j < types.size(); j++){
-                if(isFirst){
+                if(types.get(j).getCategory().equals("P")) {
+                    if (isFirst) {
+                        index = j;
+                        isFirst = false;
+                        continue;
+                    }
+                    int total = j - index - 1;
+                    types.get(index).setChildCount(total);
                     index = j;
-                    continue;
                 }
-                int total = j - index - 1;
-                types.get(index).setChildCount(total);
-                index = j;
             }
-            types.get(index).setChildCount(0);
-        }else if(types.get(types.size() - 1).equals("C")){
+        }else if(types.get(types.size() - 1).getCategory().equals("C")){
             for(int i = 0; i < types.size(); i++){
                 if(types.get(i).category.equals("P")){
                     if(isFirst){
                         index = i;
+                        isFirst = false;
                         continue;
                     }
                     int total = i - index - 1;
